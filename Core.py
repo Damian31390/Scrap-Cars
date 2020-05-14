@@ -17,21 +17,35 @@ class Core_Class:
         res=requests.get(urls)
         res.raise_for_status()
         soup=BeautifulSoup(res.text,'html.parser')
-        name=soup.find("h2",{"class":"_9c44d_LUA1k"}).get_text()
-        price=soup.find("span",{"class":"_9c44d_1zemI"}).get_text()
+        tablica = []
+        min =0
+        max=5
+        for post in soup.find_all("div",{"class":"_9c44d_1V-js"}):
+            h = post.find_all("h2",{"class":"_9c44d_LUA1k"})[0]
+            title=h.text
 
-        print(urls)
-        print("\n\nitem " + name)
-        print("price " + price + "\n") 
+            basic_link=post.find_all("a",{"class":"_9c44d_1MOYf"})[0]
+            link=basic_link['href']
+    
+            basic_price=post.find_all("span",{"class":"_9c44d_1zemI"})[0]
+            price=basic_price.text
 
-        elements = soup.find_all("h2", class_="_9c44d_LUA1k".split())
-        #parameters = soup.find_all("div", class_="_9c44d_Pjt1U".split())
-        print("\n".join("{}".format(el.get_text()) for el in elements))
+            stats=post.find_all("div",{"class":"_9c44d_wFSmn _9c44d_1AacC"})[0]
 
-        #print("\n".join("{}".format(pr.get_text()) for pr in parameters))
-
-        
+            for ele in stats.find_all("dd"):
+                tablica+=[ele.text]
+    
+            print(link)
+            print(title)
+            print(price)
+            for i in range(min,max):
+                print(tablica[i])
+                min+=1
+                max+=1
             
+            
+
+            return
 
 foo = Core_Class
 name = foo.make_url("opel astra")
