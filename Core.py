@@ -1,53 +1,29 @@
 from bs4 import BeautifulSoup
 import requests
-import pypyodbc
-import db_connection as dbConn
-
-
-class Core_Class:
-    def make_url(name):
-        url="https://allegro.pl/kategoria/samochody-osobowe-4029?string="
+import json
+import pprint
+from flask import make_response
+def make_url(name):
+    url="https://allegro.pl/kategoria/samochody-osobowe-4029?string="
         
-        urls=url+name.replace(" ","%20")
+    url=url+name.replace(" ","%20")
 
-        return urls
+    return url
     
+def allegro_scrap(url):
+    res=requests.get(url)
+    res.raise_for_status()
+    soup=BeautifulSoup(res.text,'html.parser')
+ 
+    offers = []
+    for post in soup.find_all("div", {"class": "_9c44d_1V-js"}):
+        offer = {
+            "1.uri": post.find_next("a", {"class": "_9c44d_1MOYf"})["href"],
+            "2.title": post.find_next("h2", {"class": "_9c44d_LUA1k"}).text,
+            "3.price": post.find_next("span", {"class": "_9c44d_1zemI"}).text,
+            "4.attributes": [attr.text for attr in post.find_all("dd")],
 
-    def allegro_scrap(urls):
-        res=requests.get(urls)
-        res.raise_for_status()
-        soup=BeautifulSoup(res.text,'html.parser')
-        tablica = []
-        min =0
-        max=5
-        for post in soup.find_all("div",{"class":"_9c44d_1V-js"}):
-            h = post.find_all("h2",{"class":"_9c44d_LUA1k"})[0]
-            title=h.text
+        }
 
-            basic_link=post.find_all("a",{"class":"_9c44d_1MOYf"})[0]
-            link=basic_link['href']
-    
-            basic_price=post.find_all("span",{"class":"_9c44d_1zemI"})[0]
-            price=basic_price.text
-
-            stats=post.find_all("div",{"class":"_9c44d_wFSmn _9c44d_1AacC"})[0]
-
-            for ele in stats.find_all("dd"):
-                tablica+=[ele.text]
-    
-            print(link)
-            print(title)
-            print(price)
-            for i in range(min,max):
-                print(tablica[i])
-                min+=1
-                max+=1
-            
-            
-
-            return
-
-foo = Core_Class
-name = foo.make_url("opel astra")
-print("\n")
-foo.allegro_scrap(foo.make_url("opel astra"))
+        offers.append(offer)
+    return offers
