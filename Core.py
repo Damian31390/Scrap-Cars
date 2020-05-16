@@ -1,8 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import json
-import pprint
-from flask import make_response
+
 def make_url(name):
     url="https://allegro.pl/kategoria/samochody-osobowe-4029?string="
         
